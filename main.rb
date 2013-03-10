@@ -10,8 +10,7 @@
 
 
 DataPoint = Struct.new(:symbol, :condition, :value, :rank, :percentile)
-
-require './build_table.rb'
-require './analyze.rb'
-require './output.rb'
-
+path = File.dirname(__FILE__)
+require path + '/build_table.rb'
+require path + '/analyze.rb'
+require path + '/output.rb'
