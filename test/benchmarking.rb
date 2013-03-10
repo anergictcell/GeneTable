@@ -14,7 +14,7 @@ require './main.rb'
 num_datasets = 100
 conditions = num_datasets.times.map{|x| "cond#{x}"}
 genes = Hash.new
-20000.times { |x| genes["gene#{x}".to_sym] = rand(0.0..50.0) }
+20000.times { |x| genes["gene#{x}".to_sym] = rand()*50 }
 
 puts
 puts "-------------------"
