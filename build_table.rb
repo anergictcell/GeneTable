@@ -2,7 +2,7 @@
 # DataPoint = Struct.new(:symbol, :condition, :value, :rank, :percentile)
 
 class GeneTable
-  attr_reader :symbols, :ranks, :percentiles, :values, :conditions 
+  attr_reader :symbols, :ranks, :percentiles, :values, :conditions, :data
 
   def initialize()
 
@@ -36,9 +36,17 @@ class GeneTable
   # The ID assignment has to be ordered
   # 
   def add_condition(hash, condition_name)
-    raise ArgumentError, "You have to provide a Hash {symbol=>value}" unless (hash.is_a? Hash)
+    # unless ( hash.is_a? Hash || hash.is
     raise ArgumentError, "conditon_name has to be a Symbol" unless (condition_name.is_a? Symbol)
     raise RuntimeError, "Condition #{condition_name} already exists" if @conditions.has_key? condition_name
+
+    if hash.is_a? Hash
+      array = hash.to_a.sort_by{|ary| ary[1].to_f}
+    elsif hash.is_a? Array
+      array = hash.sort_by{|ary| ary[1].to_f}
+    else
+      raise ArgumentError, "You have to provide a Hash\n{symbol1 => value1,\nsymbol2 =>...} or Array\n[ [symbol1,value1], [symbol2,..] ...]"
+    end
 
     # sort each dataset based on the values
     # That way we immediately can calculate the rank and percentile
