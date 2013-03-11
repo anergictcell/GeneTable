@@ -5,7 +5,7 @@ class GeneTable
   # each columns represents values of one dataset
   # the first column lists the gene symbol
   # params: {
-  #  :condition1 => :kind_of_value,
+  #  :condition1 => :kind_of_value, [value2,...value3]
   #  :condition2, ....
   # }
 
@@ -14,19 +14,31 @@ class GeneTable
     # printing header
     header = ["symbol"]
     params.each do |cond, kind|
-      header << "#{cond}.#{kind}"
+      if kind.is_a? Array
+        kind.each do |k|
+          header << "#{cond}.#{k}"
+        end
+      else
+        header << "#{cond}.#{kind}"
+      end
     end
     string = [header.join(sep)]
     # end of header
 
-    # printint data
+    # printing data
     symbols.each do |symbol|
       line = ["#{symbol}"]
       params.each do |condition, kind|
         # Searching for the gene symbol in one condition returns
         # Array with size 1
         dp = ids_to_dp(get_subset_ids(condition, :symbol, [symbol]))[0]
-        line << "#{dp[kind]}"
+        if kind.is_a? Array
+          kind.each do |k|
+            line << "#{dp[k]}"
+          end
+        else
+          line << "#{dp[kind]}"
+        end
       end
       string << line.join(sep)
     end
