@@ -32,7 +32,7 @@ class TestReading < Test::Unit::TestCase
     assert_equal(@x.dps_to_symbols(@x.get_subset_dps(:naive, :percentile, needles) ), [:RIKESOMETHING, :Tbp, :Il2, :Hprt] )
     assert_equal(@x.subset_to_another(:naive, :percentile, needles, :hrs4), [43, 30, 38, 42] )
 
-    needles = (80..100).map {|x| x}
+    needles = (80..100).to_a
     cols = {
       :naive => :percentile,
       :naive => :rank,
@@ -48,5 +48,14 @@ class TestReading < Test::Unit::TestCase
       cond = [:naive, :hrs2, :hrs4, :hrs6, :hrs12][rand(5)]
       assert_equal( @x.get_subset_dps(cond, :rank, rank), [ @x.data[ @x.get_subset_ids(cond, :rank, rank)[0] ] ])
     end
+
+    test1 = lambda {|x| x[:value] > 10}
+    test2 = lambda {|x| x[:percentile] > 80}
+    pipeline = @x.pipeline( [:naive, :percentile, (50..100).to_a], [[:naive, test1] , [:naive, test2]] )
+    pipectrl = @x.dps_to_symbols( @x.get_subset_dps(:naive, :percentile, (80..100).to_a) )
+    assert_equal( pipeline, pipectrl )
+
+
+
   end
 end

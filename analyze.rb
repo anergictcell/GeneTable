@@ -49,6 +49,45 @@ class GeneTable
   end
 
 
+  #
+  # Chain together selections of subsets
+  # Define one subset as data source
+  # Specify tests for the resulting dataset and narrow it down further
+  # Each test has to be passed as Proc together with a condition on which to test
+  # 
+  def pipeline(starting_set, selections)
+    # format of starting_set:
+    #  [ :condition, :haystack, [needles] ]
+    # format of selections:
+    # [ [:condition, Proc], [:condition, Proc] ]
+    # Proc has to return boolean
+
+    raise ArgumentError, "starting_set has to be Array" unless starting_set.is_a? Array
+    raise ArgumentError, "selections has to be Array" unless selections.is_a? Array
+
+    # Get startinng dataset and convert to gene symbols
+    dps = get_subset_dps( starting_set[0].to_sym, starting_set[1].to_sym, starting_set[2] )
+    symbols = dps_to_symbols( dps )
+
+    # Narrow done dataset based on each given condition
+    selections.each do |selection|
+      raise ArgumentError, "each selection has to be Array" unless selection.is_a? Array
+      raise ArgumentError, "You have to provide a Proc" unless selection[1].is_a? Proc
+      
+      # get DPs from other condition
+      new_dps = get_subset_dps( selection[0].to_sym, :symbols, symbols )
+      
+      # select subset based on Proc passed
+      new_dps.select! {|set| selection[1].call(set) }
+      # and overwrite symbols with the narrowed down dataset for next iteration
+      symbols = dps_to_symbols( new_dps )
+    end
+
+    return symbols
+  end
+
+
+
 ################ CONVERTING BETWEEN ID DPS SYMBOLS ETC ########################
 
   # converts IDs into DataPoints
