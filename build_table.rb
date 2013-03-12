@@ -56,7 +56,7 @@ class GeneTable
 
     elsif hash.is_a? Array
       # Prevent some genes from being entered
-      hash.reject! { |genevalue| @noindex.include? genevalue[0].to_sym }
+      hash.reject! { |genevaluepair| @noindex.include? genevaluepair[0].to_sym }
       array = hash.sort_by{|ary| ary[1].to_f}
     
     else
