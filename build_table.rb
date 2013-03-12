@@ -21,8 +21,14 @@ class GeneTable
     @percentiles = Hash.new()
     @values = Hash.new() # indexed by (value * 100).round(0).to_i 
       # conversion of values will be done within the class functions
+
+    @noindex = [] # Contains gene symbols that should not be included
   end
 
+  def prevent(array)
+    raise ArgumentError, "You have to provide an Array" unless array.is_a? Array
+    @noindex.concat( array.map {|string| string.to_sym} )
+  end
 
   #
   # add one column of values into data Hash
@@ -36,14 +42,23 @@ class GeneTable
   # The ID assignment has to be ordered
   # 
   def add_condition(hash, condition_name)
-    # unless ( hash.is_a? Hash || hash.is
     raise ArgumentError, "conditon_name has to be a Symbol" unless (condition_name.is_a? Symbol)
     raise RuntimeError, "Condition #{condition_name} already exists" if @conditions.has_key? condition_name
 
     if hash.is_a? Hash
+      # Prevent some genes from being entered
+      @noindex.each do |symbol|
+        # delete no matter if symbol or string is given
+        hash.delete(symbol)
+        hash.delete(symbol.to_s)
+      end
       array = hash.to_a.sort_by{|ary| ary[1].to_f}
+
     elsif hash.is_a? Array
+      # Prevent some genes from being entered
+      hash.reject! { |genevalue| @noindex.include? genevalue[0].to_sym }
       array = hash.sort_by{|ary| ary[1].to_f}
+    
     else
       raise ArgumentError, "You have to provide a Hash\n{symbol1 => value1,\nsymbol2 =>...} or Array\n[ [symbol1,value1], [symbol2,..] ...]"
     end
@@ -58,7 +73,6 @@ class GeneTable
     array.each_with_index do |content, i|
       add_datapoint( content, i, condition_name , n )
     end
-
   end
 
 
