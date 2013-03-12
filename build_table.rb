@@ -1,8 +1,5 @@
-# structure of DataPoint
-# DataPoint = Struct.new(:symbol, :condition, :value, :rank, :percentile)
-
 class GeneTable
-  attr_reader :symbols, :ranks, :percentiles, :values, :conditions, :data
+  attr_reader :symbols, :ranks, :percentiles, :values, :datasets, :data
 
   def initialize()
 
@@ -15,7 +12,7 @@ class GeneTable
     #  :key1 => [ id1, id2, ..., id(n) ], 
     #  :key2 => ....
     # }
-    @conditions = Hash.new()
+    @datasets = Hash.new()
     @symbols = Hash.new()
     @ranks = Hash.new()
     @percentiles = Hash.new()
@@ -31,53 +28,41 @@ class GeneTable
   end
 
   #
-  # add one column of values into data Hash
-  # the passed hash has to have the following structure: 
-  # {
-  #   :symbol1 => value1 (int), 
-  #   :symbol2 => ...
-  # }
-  # 
+  # add one dataset into data Hash
   # IMPORTANT: ==> This function must never run in parallel! 
-  # The ID assignment has to be ordered
   # 
-  def add_condition(hash, condition_name)
-    raise ArgumentError, "conditon_name has to be a Symbol" unless (condition_name.is_a? Symbol)
-    raise RuntimeError, "Condition #{condition_name} already exists" if @conditions.has_key? condition_name
+  # 
+  def add_dataset(data, dataset_name)
+    raise ArgumentError, "conditon_name has to be a Symbol" unless (dataset_name.is_a? Symbol)
+    raise RuntimeError, "Condition #{dataset_name} already exists" if @datasets.has_key? dataset_name
 
-    if hash.is_a? Hash
-      # Prevent some genes from being entered
+    # Prevent some genes from being entered into Hash
+    if data.is_a? Hash
       @noindex.each do |symbol|
-        # delete no matter if symbol or string is given
-        hash.delete(symbol)
-        hash.delete(symbol.to_s)
+        # delete no matter if Symbol or String is given
+        data.delete(symbol)
+        data.delete(symbol.to_s)
       end
-      array = hash.to_a.sort_by{|ary| ary[1].to_f}
-
-    elsif hash.is_a? Array
-      # Prevent some genes from being entered
-      hash.reject! { |genevaluepair| @noindex.include? genevaluepair[0].to_sym }
-      array = hash.sort_by{|ary| ary[1].to_f}
-    
+      array = data.to_a
+    elsif data.is_a? Array
+      data.reject! { |genevaluepair| @noindex.include? genevaluepair[0].to_sym }    
     else
       raise ArgumentError, "You have to provide a Hash\n{symbol1 => value1,\nsymbol2 =>...} or Array\n[ [symbol1,value1], [symbol2,..] ...]"
     end
 
-    # sort each dataset based on the values
+    # sort each dataset based on values
     # That way we immediately can calculate the rank and percentile
-    array = hash.to_a.sort_by{|ary| ary[1].to_f}
-    
-    n = array.length
+    array = data.to_a.sort_by{|ary| ary[1].to_f}
 
     # add values for each gene to @data Hash and the indicies
     array.each_with_index do |content, i|
-      add_datapoint( content, i, condition_name , n )
+      add_datapoint( content, i, dataset_name , array.length )
     end
   end
 
 
 private
-  def add_datapoint( content, i, condition_name, n )
+  def add_datapoint( content, i, dataset_name, n )
     rank = n-i     # 1-based, high to low
     
     # calculate percentile: 100(k−1)/(N−1)  
@@ -87,7 +72,7 @@ private
 
     @data[@idcounter] = DataPoint.new( 
       content[0].to_sym, # symbol
-      condition_name, 
+      dataset_name, 
       content[1].to_f, # raw value
       rank,
       percentile
@@ -97,7 +82,7 @@ private
     append_to_hash_array(@ranks, rank, @idcounter)
     append_to_hash_array(@percentiles, percentile, @idcounter)
     append_to_hash_array(@values, ((content[1].to_f) * 100 ).round(0).to_i, @idcounter)
-    append_to_hash_array(@conditions, condition_name, @idcounter)
+    append_to_hash_array(@datasets, dataset_name, @idcounter)
 
     @idcounter += 1
   end

@@ -12,7 +12,7 @@ require './main.rb'
 
 # Creating data to insert into GeneTable
 num_datasets = 100
-conditions = num_datasets.times.map{|x| "cond#{x}"}
+datasets = num_datasets.times.map{|x| "cond#{x}"}
 genes = Hash.new
 20000.times { |x| genes["gene#{x}".to_sym] = rand()*50 }
 
@@ -21,8 +21,8 @@ puts "-------------------"
 puts
 puts "Reading in datasets"
 x = GeneTable.new
-conditions.each_with_index do |con, i|
-  x.add_condition(genes, con.to_sym)
+datasets.each_with_index do |con, i|
+  x.add_dataset(genes, con.to_sym)
   print "\r#{i+1} / #{num_datasets}"
 end
 puts "                                             "

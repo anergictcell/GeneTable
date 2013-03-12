@@ -4,16 +4,16 @@ class GeneTable
   
   #
   # returns an Array of DataPoint IDs
-  # receives a key of the @conditions Hash to be used as datasource
+  # receives a key of the @datasets Hash to be used as datasource
   # receives the column that should be searched (haystack) eg :value, :rank etc
   # reveives an array of needles that are used as query
   #
-  def get_subset_ids(condition, haystack, needles)
+  def get_subset_ids(dataset, haystack, needles)
     raise RuntimeError, "haystack has to be Symbol" unless haystack.is_a? Symbol
     raise RuntimeError, "needles has the be Array" unless needles.is_a? Array
 
-    # ALL IDs in the given condition have to be within this range of IDs
-    idrange = [@conditions[condition].first , @conditions[condition].last]
+    # ALL IDs in the given dataset have to be within this range of IDs
+    idrange = [@datasets[dataset.to_sym].first , @datasets[dataset.to_sym].last]
 
     ids = []
     needles.each do |needle|
@@ -31,21 +31,21 @@ class GeneTable
 
   #
   # returns an Array of DataPoints
-  # receives a key of the @conditions Hash to be used as datasource
+  # receives a key of the @datasets Hash to be used as datasource
   # receives the column that should be searched (haystack) eg :value, :rank etc
   # reveives an array of needles that are used as query
   #
-  def get_subset_dps(condition, haystack, needles)
-    return ids_to_dp( get_subset_ids(condition, haystack, needles) )
+  def get_subset_dps(dataset, haystack, needles)
+    return ids_to_dp( get_subset_ids(dataset, haystack, needles) )
   end
   
   #
-  # converts a subset of genes to DP IDs from another condition
+  # converts a subset of genes to DP IDs from another dataset
   # see get_subset_dps for specifics
   # 
-  def subset_to_another(condition, haystack, needles, condition2)
-    symbols = dps_to_symbols( get_subset_dps(condition, haystack, needles) )
-    return get_subset_ids( condition2, :symbol, symbols )
+  def subset_to_another(dataset, haystack, needles, dataset2)
+    symbols = dps_to_symbols( get_subset_dps(dataset, haystack, needles) )
+    return get_subset_ids( dataset2, :symbol, symbols )
   end
 
 
@@ -53,13 +53,13 @@ class GeneTable
   # Chain together selections of subsets
   # Define one subset as data source
   # Specify tests for the resulting dataset and narrow it down further
-  # Each test has to be passed as Proc together with a condition on which to test
+  # Each test has to be passed as Proc together with a dataset on which to test
   # 
   def pipeline(starting_set, selections)
     # format of starting_set:
-    #  [ :condition, :haystack, [needles] ]
+    #  [ :dataset, :haystack, [needles] ]
     # format of selections:
-    # [ [:condition, Proc], [:condition, Proc] ]
+    # [ [:dataset, Proc], [:dataset, Proc] ]
     # Proc has to return boolean
 
     raise ArgumentError, "starting_set has to be Array" unless starting_set.is_a? Array
@@ -69,12 +69,12 @@ class GeneTable
     dps = get_subset_dps( starting_set[0].to_sym, starting_set[1].to_sym, starting_set[2] )
     symbols = dps_to_symbols( dps )
 
-    # Narrow done dataset based on each given condition
+    # Narrow done dataset based on each given dataset
     selections.each do |selection|
       raise ArgumentError, "each selection has to be Array" unless selection.is_a? Array
       raise ArgumentError, "You have to provide a Proc" unless selection[1].is_a? Proc
       
-      # get DPs from other condition
+      # get DPs from other dataset
       new_dps = get_subset_dps( selection[0].to_sym, :symbols, symbols )
       
       # select subset based on Proc passed
@@ -119,8 +119,8 @@ private
       @percentiles[identifier.to_i]
     when "values" , "value"
       @values[(identifier.to_f * 100).round(0).to_i]
-    when "conditions" , "condition"
-      @conditions[identifier.to_sym]
+    when "datasets" , "dataset"
+      @datasets[identifier.to_sym]
     else
       raise ArgumentError, "kind is not known."
     end

@@ -11,11 +11,11 @@ class TestReading < Test::Unit::TestCase
     @x = GeneTable.new
     @x.prevent(["Il8"])
     @x.prevent(["Gapdh"])
-    @x.add_condition(naive , :naive)
-    @x.add_condition(x2, :hrs2)
-    @x.add_condition(x4, :hrs4)
-    @x.add_condition(x6, :hrs6)
-    @x.add_condition(x12, :hrs12)
+    @x.add_dataset(naive , :naive)
+    @x.add_dataset(x2, :hrs2)
+    @x.add_dataset(x4, :hrs4)
+    @x.add_dataset(x6, :hrs6)
+    @x.add_dataset(x12, :hrs12)
 
     @num_genes = @x.symbols.keys.size
   end

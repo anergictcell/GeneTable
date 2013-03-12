@@ -9,7 +9,7 @@
 
 
 
-DataPoint = Struct.new(:symbol, :condition, :value, :rank, :percentile)
+DataPoint = Struct.new(:symbol, :dataset, :value, :rank, :percentile)
 path = File.dirname(__FILE__)
 require path + '/build_table.rb'
 require path + '/analyze.rb'
@@ -25,9 +25,9 @@ x.prevent(["Cd4","Sfi1"]) # prevent some genes from being incorporated
 
 # add datasets
 # add as Array of gene,value pairs
-x.add_condition([ ["genename",value], ["gene2",value2] ], :name_of_dataset)
+x.add_dataset([ ["genename",value], ["gene2",value2] ], :name_of_dataset)
 # add as Hash
-x.add_condition( {"genename" => value, "gene2" => value2}, :name_of_dataset)
+x.add_dataset( {"genename" => value, "gene2" => value2}, :name_of_dataset)
 # Gene names can be given as either String or Symbol
 
 # analyze the data
