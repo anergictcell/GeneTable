@@ -14,7 +14,6 @@ class GeneTable
 
     # ALL IDs in the given dataset have to be within this range of IDs
     idrange = [@datasets[dataset.to_sym].first , @datasets[dataset.to_sym].last]
-
     ids = []
     needles.each do |needle|
       if ( res = list(haystack, needle) )
