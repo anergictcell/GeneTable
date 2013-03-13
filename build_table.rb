@@ -70,8 +70,20 @@ private
     # // N = number of elements
     percentile = ((100.to_f*(i))/(n-1)).round(0).to_i
 
+    mgi_symbol = content[0].to_sym
+
+    # check if there is already an entry with the same genename, if so, rename gene to X.2
+    if @symbols.has_key? mgi_symbol
+      j = 2
+      while is_duplicate?(dataset_name, mgi_symbol)
+        mgi_symbol = (content[0] << "#{j}").to_sym
+        j+=1
+      end
+    end
+
+    # create DataPoint
     @data[@idcounter] = DataPoint.new( 
-      content[0].to_sym, # symbol
+      mgi_symbol,
       dataset_name, 
       content[1].to_f, # raw value
       rank,
@@ -85,6 +97,14 @@ private
     append_to_hash_array(@datasets, dataset_name, @idcounter)
 
     @idcounter += 1
+  end
+
+  def is_duplicate?(dataset_name, mgi_symbol)
+    num = @symbols[mgi_symbol].count { |id| @data[id][:dataset] == dataset_name }
+    if num > 0
+      return true
+    end
+    return false
   end
 
   def append_to_hash_array(hash,key,value)
