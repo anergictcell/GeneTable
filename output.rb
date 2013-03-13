@@ -49,7 +49,7 @@ class GeneTable
   def print(ids = nil)
     string = "[ID]\t"
     string << "[MGI SYMBOL]\t"
-    string << "[CONDITION]\t"
+    string << "[DATASET]\t"
     string << "[VALUE]\t"
     string << "[RANK]\t"
     string << "[PERCENTILE]\n"
@@ -84,7 +84,7 @@ class GeneTable
  
     string = csw("[ID]",width[:id]) + "\t"
     string << csw("[MGI SYMBOL]",width[:symbol]) + "\t"
-    string << csw("[CONDITION]",width[:dataset]) + "\t"
+    string << csw("[DATASET]",width[:dataset]) + "\t"
     string << csw("[VALUE]",width[:value]) + "\t"
     string << csw("[RANK]",width[:rank]) + "\t"
     string << csw("[PERCENTILE]",width[:percentile]) + "\n"
