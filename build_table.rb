@@ -60,6 +60,27 @@ class GeneTable
     end
   end
 
+  #
+  # Normalizes one dataset to a reference set
+  # Normalization is done similar to quantile normalization 
+  # actually normalized by rank instead of percentile
+  # value_of_datapoint_ranked_x = value_of_reference_dp_ranked_x
+  # 
+  def add_normalized_set(dataset, reference, dataset_name)
+    # Get all DPs from given dataset
+    dps = get_subset_dps(dataset.to_sym, :datasets, [dataset.to_sym])
+
+    normalized_data = {}  # Hash to hold the normalized dataset
+
+    dps.each do |dp|
+      # Retrieve the reference DP with rank equal to DP 
+      ref = get_subset_dps( reference.to_sym, :ranks, [dp[:rank]] )
+      raise RuntimeError, "Too many datasets" unless ref.size == 1
+      # Add normalized DP to normalized dataset
+      normalized_data[ dp[:symbol] ] = ref[0][:value]
+    end
+    add_dataset(normalized_data, dataset_name.to_sym)
+  end
 
 private
   def add_datapoint( content, i, dataset_name, n )
