@@ -66,20 +66,20 @@ class GeneTable
 
     # Get startinng dataset and convert to gene symbols
     dps = get_subset_dps( starting_set[0].to_sym, starting_set[1].to_sym, starting_set[2] )
-    symbols = dps_to_symbols( dps )
+    symbols = [ dps_to_symbols( dps ) ]
 
     # Narrow done dataset based on each given dataset
     selections.each do |selection|
       raise ArgumentError, "each selection has to be Array" unless selection.is_a? Array
       raise ArgumentError, "You have to provide a Proc" unless selection[1].is_a? Proc
       
-      # get DPs from other dataset
-      new_dps = get_subset_dps( selection[0].to_sym, :symbols, symbols )
+      # get DPs from other dataset (Always use last result as needles)
+      new_dps = get_subset_dps( selection[0].to_sym, :symbols, symbols.last )
       
       # select subset based on Proc passed
       new_dps.select! {|set| selection[1].call(set) }
-      # and overwrite symbols with the narrowed down dataset for next iteration
-      symbols = dps_to_symbols( new_dps )
+      # and add symbols with the narrowed down dataset for next iteration
+      symbols << dps_to_symbols( new_dps )
     end
 
     return symbols

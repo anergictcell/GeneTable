@@ -73,12 +73,10 @@ private
     mgi_symbol = content[0].to_sym
 
     # check if there is already an entry with the same genename, if so, rename gene to X.2
-    if @symbols.has_key? mgi_symbol
-      j = 2
-      while is_duplicate?(dataset_name, mgi_symbol)
-        mgi_symbol = (content[0] << "#{j}").to_sym
-        j+=1
-      end
+    j = 1
+    while is_duplicate?(dataset_name, mgi_symbol)
+      j+=1
+      mgi_symbol = (content[0].to_s + "_#{j}").to_sym
     end
 
     # create DataPoint
@@ -90,7 +88,7 @@ private
       percentile
     )
 
-    append_to_hash_array(@symbols, content[0].to_sym, @idcounter)
+    append_to_hash_array(@symbols, mgi_symbol, @idcounter)
     append_to_hash_array(@ranks, rank, @idcounter)
     append_to_hash_array(@percentiles, percentile, @idcounter)
     append_to_hash_array(@values, ((content[1].to_f) * 100 ).round(0).to_i, @idcounter)
@@ -100,6 +98,7 @@ private
   end
 
   def is_duplicate?(dataset_name, mgi_symbol)
+    return false unless @symbols.has_key? mgi_symbol
     num = @symbols[mgi_symbol].count { |id| @data[id][:dataset] == dataset_name }
     if num > 0
       return true
