@@ -27,16 +27,15 @@ class GeneTable
 
     # printing data
     symbols.each do |symbol|
+        if !@symbols.has_key(symbol.to_sym)
+          puts "Unknown #{symbol}"
+          next
+        end
       line = ["#{symbol}"]
       params.each do |dataset, kind|
         # Searching for the gene symbol in one dataset returns
         # Array with size 1
         dp = ids_to_dp(get_subset_ids(dataset, :symbol, [symbol.to_sym]))[0]
-        if dp.nil?
-          puts "Unknown #{symbol}"
-          next
-        end
-
         if kind.is_a? Array
           kind.each do |k|
             line << "#{dp[k]}"
