@@ -27,7 +27,7 @@ class GeneTable
 
     # printing data
     symbols.each do |symbol|
-        if !@symbols.has_key(symbol.to_sym)
+        if !@symbols.has_key?(symbol.to_sym)
           puts "Unknown #{symbol}"
           next
         end
