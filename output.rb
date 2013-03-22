@@ -31,7 +31,7 @@ class GeneTable
       params.each do |dataset, kind|
         # Searching for the gene symbol in one dataset returns
         # Array with size 1
-        dp = ids_to_dp(get_subset_ids(dataset, :symbol, [symbol]))[0]
+        dp = ids_to_dp(get_subset_ids(dataset, :symbol, [symbol.to_sym]))[0]
         if kind.is_a? Array
           kind.each do |k|
             line << "#{dp[k]}"
