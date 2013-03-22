@@ -51,7 +51,7 @@ class TestReading < Test::Unit::TestCase
 
     test1 = lambda {|x| x[:value] > 10}
     test2 = lambda {|x| x[:percentile] > 80}
-    pipeline = @x.pipeline( [:naive, :percentile, (50..100).to_a], [[:naive, test1] , [:naive, test2]] )
+    pipeline = @x.pipeline( [:naive, :percentile, (50..100).to_a], [[:naive, test1] , [:naive, test2]] )[2]
     pipectrl = @x.dps_to_symbols( @x.get_subset_dps(:naive, :percentile, (80..100).to_a) )
     assert_equal( pipeline, pipectrl )
 
